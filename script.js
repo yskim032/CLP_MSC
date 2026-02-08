@@ -623,7 +623,7 @@ if (!btnParseBulk) {
 let activeReplyId = null;
 
 async function fetchAllRecords() {
-    db.collection("board_messages")
+    db.collection("clp_board_messages")
         .orderBy("timestamp", "desc")
         .limit(50)
         .onSnapshot(snapshot => {
@@ -781,7 +781,7 @@ window.submitInlineReply = async (parentId) => {
     if (!boardNickname.value) return showToast("⚠️ Enter nickname at the top first!");
 
     try {
-        await db.collection("board_messages").add({
+        await db.collection("clp_board_messages").add({
             nickname: boardNickname.value,
             text: textEl.value.trim(),
             isReply: true,
@@ -798,7 +798,7 @@ window.submitInlineReply = async (parentId) => {
 window.deleteMessage = async (id) => {
     if (!confirm("Delete this message?")) return;
     try {
-        await db.collection("board_messages").doc(id).delete();
+        await db.collection("clp_board_messages").doc(id).delete();
         showToast("Message deleted");
     } catch (e) {
         showToast("Delete failed");
@@ -820,7 +820,7 @@ btnBoardSave.addEventListener('click', async () => {
     const isPinned = boardIsPinned ? boardIsPinned.checked : false;
 
     try {
-        await db.collection("board_messages").add({
+        await db.collection("clp_board_messages").add({
             nickname: boardNickname.value,
             text: boardText.value,
             isReply: !!isReply,
@@ -862,7 +862,7 @@ if (btnSaveSetup) {
             messagingSenderId: document.getElementById('cfg-messagingSenderId').value,
             appId: document.getElementById('cfg-appId').value
         };
-        localStorage.setItem('msc_erp_firebase_config', JSON.stringify(config));
+        localStorage.setItem('clp_msc_firebase_config', JSON.stringify(config));
         location.reload();
     };
 }

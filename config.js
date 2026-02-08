@@ -13,7 +13,7 @@ const defaultExposedConfig = {
 };
 
 // Check for override in LocalStorage
-const savedConfig = localStorage.getItem('msc_erp_firebase_config');
+const savedConfig = localStorage.getItem('clp_msc_firebase_config');
 let firebaseConfig = defaultExposedConfig;
 
 if (savedConfig) {
