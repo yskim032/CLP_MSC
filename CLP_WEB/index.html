@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSC KOREA : CLP Simulator</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Outfit:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <!-- Three.js for 3D Visualization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="app-wrapper">
+        <header class="main-header">
+            <div class="logo">
+                <span class="msc">MSC KOREA</span>
+                <span class="korea">CLP SIMULATOR</span>
+            </div>
+            <div class="header-main-title">Container Loading Plan</div>
+
+        </header>
+
+        <div class="dashboard-stack">
+            <!-- Project Management Section -->
+            <section class="glass project-section">
+                <div class="section-header">
+                    <h2>Project Management</h2>
+                    <div class="project-controls">
+                        <input type="text" id="project-name" placeholder="Project Name" class="project-input">
+                        <button id="btn-save-project" class="btn-msc-glow btn-small">💾 SAVE PROJECT</button>
+                    </div>
+                </div>
+                <div id="saved-project-list" class="saved-project-list">
+                    <!-- Saved projects will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Bulk Input Section -->
+            <section class="glass bulk-section" style="margin-top: 0;">
+                <div class="section-header">
+                    <h2>Bulk Input</h2>
+                    <div
+                        style="display: flex; gap: 15px; align-items: center; background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px; border: 1px solid var(--glass-border);">
+                        <label style="color: var(--text-dim); font-size: 0.9rem; cursor: pointer;">
+                            <input type="radio" name="bulk-unit" value="mm" checked> mm
+                        </label>
+                        <label style="color: var(--text-dim); font-size: 0.9rem; cursor: pointer;">
+                            <input type="radio" name="bulk-unit" value="cm"> cm
+                        </label>
+                        <label style="color: var(--text-dim); font-size: 0.9rem; cursor: pointer;">
+                            <input type="radio" name="bulk-unit" value="m"> m
+                        </label>
+                    </div>
+                    <button id="btn-parse-bulk" class="btn-msc-glow">PARSE TO LIST</button>
+                </div>
+                <div style="display: flex; gap: 10px; flex-direction: column;">
+                    <textarea id="bulk-input" placeholder="Paste data here (e.g. 1000x500x500 10)"
+                        style="width: 100%; height: 100px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white; padding: 10px; border-radius: 6px; resize: vertical; font-family: 'Roboto Mono', monospace;"></textarea>
+                </div>
+            </section>
+
+            <div class="main-content-grid">
+                <!-- Left: Input & Calculation -->
+                <div class="left-panel">
+                    <section class="glass input-section">
+                        <div class="section-header">
+                            <h2>Cargo Input</h2>
+                            <button id="btn-calculate" class="btn-msc-glow">CALCULATE CONTAINERS</button>
+                        </div>
+                        <div class="table-container free-text-table-container">
+                            <div class="input-header-row free-text-header">
+                                <span style="flex:2">Input (LxWxH Qty)</span>
+                                <span style="width:60px">Unit</span>
+                                <span style="width:50px">L</span>
+                                <span style="width:50px">W</span>
+                                <span style="width:50px">H</span>
+                                <span style="width:40px">Qty</span>
+                                <span style="width:40px">Color</span>
+                                <span style="flex:1">Assigned</span>
+                            </div>
+                            <div id="item-list-container" class="scrollable-list">
+                                <!-- 20 Rows injected via JS -->
+                            </div>
+                        </div>
+                        <div class="action-footer">
+                            <button id="btn-clear-all" class="btn-small btn-secondary">Clear All Lines</button>
+                        </div>
+                    </section>
+
+                    <section class="glass result-section">
+                        <div class="section-header">
+                            <h2>Results</h2>
+                        </div>
+                        <div id="result-display" class="result-grid">
+                            <div class="result-card">
+                                <span class="label">20' DV</span>
+                                <span class="value" id="count-20dv">0</span>
+                            </div>
+                            <div class="result-card">
+                                <span class="label">40' HC</span>
+                                <span class="value" id="count-40hc">0</span>
+                            </div>
+                            <div class="result-card">
+                                <span class="label">40' FR</span>
+                                <span class="value" id="count-40fr">0</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right: 3D Visualization -->
+                <div class="right-panel">
+                    <section class="glass visual-section">
+                        <div class="section-header">
+                            <h2>3D Visualization</h2>
+                            <div id="container-list-display" class="container-list-grid"></div>
+                            <div id="current-view-label"
+                                style="margin-top: 10px; color: var(--text-dim); font-size: 0.85rem;">Select a container
+                                to view</div>
+                            <div class="visual-controls">
+                                <button id="btn-reset-view" class="btn-small">Reset View</button>
+                            </div>
+                        </div>
+                        <div id="canvas-container"
+                            style="width: 100%; height: 400px; background: rgba(0,0,0,0.2); border-radius: 8px;"></div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Message Board Section (Replicated from AI_WEB_STUDY) -->
+            <section id="board-section" class="glass">
+                <div class="section-header">
+                    <h2>Live Message Board</h2>
+                    <div class="ticker-container" id="ticker-container">
+                        <div class="ticker-track" id="ticker-track">
+                            <!-- Messages will scroll here -->
+                        </div>
+                    </div>
+                    <button id="btn-board-save" class="btn-msc-glow" style="margin-left: 15px;">SAVE MESSAGE</button>
+                </div>
+
+                <div class="board-inputs-container">
+                    <div class="board-inputs-row">
+                        <input type="text" id="board-nickname" placeholder="Nickname" class="board-input-small">
+                        <input type="text" id="board-text" placeholder="Message..." class="board-input-large">
+                    </div>
+                    <div class="board-controls-row"
+                        style="display: flex; gap: 15px; align-items: center; margin-top: 10px; flex-wrap: wrap; font-size: 0.85rem;">
+                        <label class="control-label">Color: <input type="color" id="board-color"
+                                value="#ffffff"></label>
+                        <label class="control-label">Size:
+                            <select id="board-font-size">
+                                <option value="0.9rem">Normal</option>
+                                <option value="1.2rem">Medium</option>
+                                <option value="1.5rem" selected>Large</option>
+                                <option value="2rem">X-Large</option>
+                            </select>
+                        </label>
+                        <label class="control-label">Weight:
+                            <select id="board-font-weight">
+                                <option value="400">Normal</option>
+                                <option value="700" selected>Bold</option>
+                            </select>
+                        </label>
+                        <label class="control-label">
+                            <input type="checkbox" id="board-is-rtl" checked> RTL Scroll
+                        </label>
+                        <label class="control-label">Speed:
+                            <input type="range" id="board-speed" min="1" max="100" value="50" style="width:80px">
+                        </label>
+                        <label class="control-label">
+                            <input type="checkbox" id="board-is-pinned"> Pin
+                        </label>
+                    </div>
+                </div>
+
+                <div class="board-display-container">
+                    <div id="board-list" class="board-list">
+                        <!-- Board items will be injected here -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Load Project Modal -->
+    <div id="load-modal" class="modal-overlay hidden">
+        <div class="modal-content glass">
+            <h3>Load Project</h3>
+            <div id="project-list" class="project-list">
+                <!-- Project list injected via JS -->
+            </div>
+            <div class="modal-actions">
+                <button id="btn-close-load" class="btn-small">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Setup Modal (Same as AI_WEB_STUDY) -->
+    <div id="setup-modal" class="modal-overlay hidden">
+        <div class="modal-content glass">
+            <h3>🛠️ SETTINGS</h3>
+            <p>Default config is active. Update only if you need to use a different Firebase project.</p>
+            <div class="setup-form">
+                <div class="input-field">
+                    <label>API Key</label>
+                    <input type="text" id="cfg-apiKey" placeholder="AIzaSy...">
+                </div>
+                <div class="input-field">
+                    <label>Auth Domain</label>
+                    <input type="text" id="cfg-authDomain" placeholder="xxx.firebaseapp.com">
+                </div>
+                <div class="input-field">
+                    <label>Project ID</label>
+                    <input type="text" id="cfg-projectId" placeholder="your-project-id">
+                </div>
+                <div class="input-field">
+                    <label>Storage Bucket</label>
+                    <input type="text" id="cfg-storageBucket" placeholder="xxx.firebasestorage.app">
+                </div>
+                <div class="input-field">
+                    <label>Messaging Sender ID</label>
+                    <input type="text" id="cfg-messagingSenderId" placeholder="123456789">
+                </div>
+                <div class="input-field">
+                    <label>App ID</label>
+                    <input type="text" id="cfg-appId" placeholder="1:123456:web:xxxx">
+                </div>
+                <div class="input-field">
+                    <label>Measurement ID (Optional)</label>
+                    <input type="text" id="cfg-measurementId" placeholder="G-XXXXXX">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-save-setup" class="btn-primary">SAVE & RESTART</button>
+                <button id="btn-close-setup" class="btn-small">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+    <!-- Logic -->
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

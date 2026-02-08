@@ -1,0 +1,5 @@
+                            <h2>3D Visualization</h2>
+                        </div>
+                        <div id="container-list-display" class="container-list-grid"></div>
+                        <div id="current-view-label" style="margin-top: 10px; color: var(--text-dim); font-size: 0.85rem;">Select a container to view</div>
+                        <div class="visual-controls">
